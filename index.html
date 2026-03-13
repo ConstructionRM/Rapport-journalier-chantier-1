@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rapport Journalier de Chantier — Construction RM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap');
+
+  :root {
+    --navy: #0D1F3C;
+    --navy-mid: #1A3560;
+    --gold: #C9A84C;
+    --gold-light: #E2C47A;
+    --gold-pale: #F7EDD6;
+    --white: #FFFFFF;
+    --gray-light: #F4F5F7;
+    --gray-mid: #D1D5DB;
+    --gray-dark: #6B7280;
+    --red: #B91C1C;
+    --green: #15803D;
+    --shadow: 0 2px 12px rgba(13,31,60,0.10);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--gray-light);
+    color: var(--navy);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--navy);
+    padding: 18px 20px 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 20px rgba(0,0,0,0.3);
+  }
+
+  .logo-mark {
+    width: 44px; height: 44px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800; font-size: 18px;
+    color: var(--navy);
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 18px;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+
+  .header-text span {
+    font-size: 11px;
+    color: var(--gold-light);
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* MAIN */
+  main { padding: 16px; max-width: 680px; margin: 0 auto; }
+
+  /* SECTION CARDS */
+  .section-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--navy);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-header .icon {
+    font-size: 16px;
+  }
+
+  .section-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--white);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  .section-body { padding: 16px; }
+
+  /* INPUTS */
+  .field { margin-bottom: 13px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--gray-mid);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    color: var(--navy);
+    background: var(--white);
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+  }
+
+  textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* EMPLOYEE ROWS */
+  .employee-entry {
+    background: var(--gray-light);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--gold);
+    position: relative;
+  }
+
+  .employee-entry .emp-name-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 10px;
+  }
+
+  .time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .pause-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .pause-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  /* MATERIAL ROWS */
+  .material-entry {
+    background: var(--gray-light);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--navy-mid);
+    position: relative;
+  }
+
+  /* SUBCONTRACTOR ROWS */
+  .sub-entry {
+    background: var(--gray-light);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 3px solid #4B6FA0;
+    position: relative;
+  }
+
+  /* CHANGE ORDER ROWS */
+  .change-entry {
+    background: #FFF8EC;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--gold);
+    position: relative;
+  }
+
+  /* BUTTONS */
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: 1.5px dashed var(--gray-mid);
+    border-radius: 7px;
+    padding: 9px 14px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+
+  .btn-add:hover {
+    border-color: var(--gold);
+    color: var(--navy);
+    background: var(--gold-pale);
+  }
+
+  .btn-remove {
+    background: none;
+    border: none;
+    color: var(--gray-mid);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+
+  .btn-remove:hover { color: var(--red); background: #FEE2E2; }
+
+  /* SUBMIT AREA */
+  .submit-area {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-submit {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 10px;
+    padding: 16px 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.35);
+  }
+
+  .btn-submit:hover {
+    background: var(--gold-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(201,168,76,0.45);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-pdf {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+  }
+
+  .btn-pdf:hover { background: var(--navy-mid); }
+
+  /* STATUS */
+  #statusMsg {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  #statusMsg.success {
+    display: block;
+    background: #DCFCE7;
+    color: var(--green);
+    border: 1.5px solid #86EFAC;
+  }
+
+  #statusMsg.error {
+    display: block;
+    background: #FEE2E2;
+    color: var(--red);
+    border: 1.5px solid #FCA5A5;
+  }
+
+  /* TOTALS BAR */
+  .totals-bar {
+    background: var(--navy);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .total-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .total-item .t-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gold-light);
+  }
+
+  .total-item .t-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* WEATHER SELECTOR */
+  .meteo-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .meteo-opt input[type="radio"] { display: none; }
+
+  .meteo-opt label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--gray-light);
+    border: 1.5px solid var(--gray-mid);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy);
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+    transition: all 0.15s;
+  }
+
+  .meteo-opt input[type="radio"]:checked + label {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--white);
+  }
+
+  /* LOADING SPINNER */
+  .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(13,31,60,0.2);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  .btn-submit .spinner { border-color: rgba(13,31,60,0.2); border-top-color: var(--navy); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 400px) {
+    .row-3 { grid-template-columns: 1fr 1fr; }
+    .pause-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  .required-star { color: var(--gold); }
+
+  .section-header.gold { background: var(--gold); }
+  .section-header.gold h2 { color: var(--navy); }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--gray-mid);
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">RM</div>
+  <div class="header-text">
+    <h1>Construction Roger Mercier</h1>
+    <span>Rapport Journalier de Chantier</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- SECTION 1: INFOS GÉNÉRALES -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="icon">📋</span>
+      <h2>Informations Générales</h2>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Nom du projet <span class="required-star">*</span></label>
+        <input type="text" id="nomProjet" placeholder="ex. Résidence Tremblay — Agrandissement" required>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Date <span class="required-star">*</span></label>
+          <input type="date" id="dateRapport" required>
+        </div>
+        <div class="field">
+          <label>Contremaître <span class="required-star">*</span></label>
+          <input type="text" id="contremaitre" placeholder="Nom du contremaître">
+        </div>
+      </div>
+      <div class="field">
+        <label>Conditions météo</label>
+        <div class="meteo-options">
+          <div class="meteo-opt"><input type="radio" name="meteo" id="m1" value="☀️ Ensoleillé"><label for="m1">☀️ Ensoleillé</label></div>
+          <div class="meteo-opt"><input type="radio" name="meteo" id="m2" value="⛅ Nuageux"><label for="m2">⛅ Nuageux</label></div>
+          <div class="meteo-opt"><input type="radio" name="meteo" id="m3" value="🌧️ Pluie"><label for="m3">🌧️ Pluie</label></div>
+          <div class="meteo-opt"><input type="radio" name="meteo" id="m4" value="❄️ Neige"><label for="m4">❄️ Neige</label></div>
+          <div class="meteo-opt"><input type="radio" name="meteo" id="m5" value="💨 Vent fort"><label for="m5">💨 Vent fort</label></div>
+          <div class="meteo-opt"><input type="radio" name="meteo" id="m6" value="🥶 Gel"><label for="m6">🥶 Gel</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Température (°C)</label>
+        <input type="number" id="temperature" placeholder="ex. 12" style="max-width:120px;">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: TEMPS DES EMPLOYÉS -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="icon">⏱️</span>
+      <h2>Temps des Employés</h2>
+    </div>
+    <div class="section-body">
+      <div id="employeesContainer"></div>
+      <button class="btn-add" onclick="addEmployee()">＋ Ajouter un employé</button>
+      <div class="totals-bar" id="totalsBar" style="display:none;">
+        <div class="total-item">
+          <span class="t-label">Total chantier</span>
+          <span class="t-val" id="totalChantier">0h00</span>
+        </div>
+        <div class="total-item">
+          <span class="t-label" style="color:#CBD5E1;">Pause AM</span>
+          <span class="t-val" style="color:#CBD5E1;" id="totalPauseAM">0h00</span>
+        </div>
+        <div class="total-item">
+          <span class="t-label" style="color:#CBD5E1;">Dîner</span>
+          <span class="t-val" style="color:#CBD5E1;" id="totalPauseDiner">0h00</span>
+        </div>
+        <div class="total-item">
+          <span class="t-label" style="color:#CBD5E1;">Pause PM</span>
+          <span class="t-val" style="color:#CBD5E1;" id="totalPausePM">0h00</span>
+        </div>
+        <div class="total-item">
+          <span class="t-label" style="color:#93C5FD;">Heures payables</span>
+          <span class="t-val" style="color:#93C5FD;" id="totalPayable">0h00</span>
+        </div>
+        <div class="total-item">
+          <span class="t-label" style="color:#86EFAC;">Total facturable</span>
+          <span class="t-val" style="color:#86EFAC;" id="totalFact">0h00</span>
+        </div>
+        <div class="total-item">
+          <span class="t-label" style="color:#FCD34D;">Total non-facturable</span>
+          <span class="t-val" style="color:#FCD34D;" id="totalNonFact">0h00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI CONFORMITÉ -->
+  <div class="section-card" id="kpiCard" style="display:none;">
+    <div class="section-header" style="background:var(--navy-mid);">
+      <span class="icon">📊</span>
+      <h2>Taux de Conformité — Heures Facturables</h2>
+    </div>
+    <div class="section-body" style="padding:20px 16px;">
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <!-- GAUGE -->
+        <div style="flex-shrink:0;position:relative;width:130px;height:80px;">
+          <svg viewBox="0 0 130 80" width="130" height="80">
+            <!-- Background arc -->
+            <path id="gaugeTrack" d="M15,75 A55,55 0 0,1 115,75" fill="none" stroke="#E5E7EB" stroke-width="12" stroke-linecap="round"/>
+            <!-- Fill arc -->
+            <path id="gaugeFill" d="M15,75 A55,55 0 0,1 115,75" fill="none" stroke="#C9A84C" stroke-width="12" stroke-linecap="round"
+              stroke-dasharray="0 173" style="transition: stroke-dasharray 0.6s ease, stroke 0.4s ease;"/>
+            <!-- Center text -->
+            <text id="gaugePct" x="65" y="68" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="22" fill="#0D1F3C">—</text>
+          </svg>
+        </div>
+        <!-- DETAILS -->
+        <div style="flex:1;min-width:160px;">
+          <div id="kpiLabel" style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--navy);line-height:1;">—</div>
+          <div id="kpiStatus" style="font-size:13px;font-weight:600;margin:4px 0 10px;color:var(--gray-dark);">En attente de données</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div style="background:var(--gray-light);border-radius:7px;padding:8px 10px;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-dark);">Facturable</div>
+              <div id="kpiFact" style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:#15803D;">—</div>
+            </div>
+            <div style="background:var(--gray-light);border-radius:7px;padding:8px 10px;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-dark);">Temps chantier</div>
+              <div id="kpiChantier" style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--navy);">—</div>
+            </div>
+            <div style="background:var(--gray-light);border-radius:7px;padding:8px 10px;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-dark);">Non-facturable</div>
+              <div id="kpiNonFact" style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:#B45309;">—</div>
+            </div>
+            <div style="background:var(--gray-light);border-radius:7px;padding:8px 10px;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-dark);">Pauses</div>
+              <div id="kpiPauses" style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--gray-dark);">—</div>
+            </div>
+          </div>
+          <div id="kpiBenchmark" style="margin-top:10px;font-size:11px;color:var(--gray-dark);border-top:1px solid var(--gray-mid);padding-top:8px;">
+            🎯 Cible : <strong>≥ 85%</strong> de conformité — <span id="kpiEcart" style="font-weight:700;">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: MATÉRIAUX -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="icon">🧱</span>
+      <h2>Matériaux Livrés</h2>
+    </div>
+    <div class="section-body">
+      <div id="materiauxContainer"></div>
+      <button class="btn-add" onclick="addMateriau()">＋ Ajouter une livraison</button>
+    </div>
+  </div>
+
+  <!-- SECTION 4: SOUS-TRAITANTS -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="icon">🤝</span>
+      <h2>Sous-Traitants</h2>
+    </div>
+    <div class="section-body">
+      <div id="sousTraitantsContainer"></div>
+      <button class="btn-add" onclick="addSousTraitant()">＋ Ajouter un sous-traitant</button>
+    </div>
+  </div>
+
+  <!-- SECTION 5: COMPTE RENDU -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="icon">📝</span>
+      <h2>Compte Rendu de la Journée</h2>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Travaux effectués & description de la journée</label>
+        <textarea id="compteRendu" placeholder="Décrire les travaux effectués aujourd'hui, l'avancement du projet, les équipes en place..." rows="5"></textarea>
+      </div>
+      <div class="field">
+        <label>Enjeux & problèmes rencontrés</label>
+        <textarea id="enjeux" placeholder="Problèmes techniques, retards, manque de matériaux, conditions difficiles, accidents..." rows="4"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: AVIS DE CHANGEMENT -->
+  <div class="section-card">
+    <div class="section-header gold">
+      <span class="icon">🔄</span>
+      <h2>Avis de Changement</h2>
+    </div>
+    <div class="section-body">
+      <div id="changementsContainer"></div>
+      <button class="btn-add" onclick="addChangement()">＋ Ajouter un avis de changement</button>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="submit-area">
+    <button class="btn-submit" id="btnSoumettre" onclick="soumettrerapport()">
+      <span>📤 Soumettre le rapport</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+    <button class="btn-pdf" onclick="genererPDF()">
+      📄 Télécharger PDF (aperçu)
+    </button>
+    <div id="statusMsg"></div>
+  </div>
+
+</main>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let employees = [];
+let materiaux = [];
+let sousTraitants = [];
+let changements = [];
+let empId = 0, matId = 0, subId = 0, chgId = 0;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('dateRapport').valueAsDate = new Date();
+  addEmployee();
+});
+
+// ─── EMPLOYEES ────────────────────────────────────────────────────────────────
+function addEmployee() {
+  const id = ++empId;
+  employees.push(id);
+  renderEmployees();
+}
+
+function removeEmployee(id) {
+  employees = employees.filter(e => e !== id);
+  document.getElementById('emp-' + id)?.remove();
+  updateTotals();
+  if (employees.length === 0) document.getElementById('totalsBar').style.display = 'none';
+}
+
+function renderEmployees() {
+  const container = document.getElementById('employeesContainer');
+  const id = employees[employees.length - 1];
+  const div = document.createElement('div');
+  div.className = 'employee-entry';
+  div.id = 'emp-' + id;
+  div.innerHTML = `
+    <div class="emp-name-row">
+      <div class="field" style="margin:0">
+        <label>Nom de l'employé</label>
+        <input type="text" placeholder="Prénom Nom" oninput="updateTotals()">
+      </div>
+      <button class="btn-remove" onclick="removeEmployee(${id})">✕</button>
+    </div>
+
+    <div class="time-grid">
+      <div class="field" style="margin:0">
+        <label>Arrivée chantier</label>
+        <input type="time" onchange="calcEmp(${id})" data-role="debut">
+      </div>
+      <div class="field" style="margin:0">
+        <label>Départ chantier</label>
+        <input type="time" onchange="calcEmp(${id})" data-role="fin">
+      </div>
+    </div>
+
+    <div class="pause-label" style="margin-top:10px;">Pauses (durée en minutes)</div>
+    <div class="pause-row" style="margin-top:5px;">
+      <div class="field" style="margin:0">
+        <label>AM (min)</label>
+        <input type="number" min="0" max="60" value="0" onchange="calcEmp(${id})" data-role="pauseAM">
+      </div>
+      <div class="field" style="margin:0">
+        <label>Dîner (min)</label>
+        <input type="number" min="0" max="120" value="30" onchange="calcEmp(${id})" data-role="pauseDiner">
+      </div>
+      <div class="field" style="margin:0">
+        <label>PM (min)</label>
+        <input type="number" min="0" max="60" value="0" onchange="calcEmp(${id})" data-role="pausePM">
+      </div>
+    </div>
+
+    <!-- Ligne 1 : Total chantier + 3 pauses séparées -->
+    <div style="margin-top:12px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:8px;">
+      <div style="background:var(--navy);border-radius:8px;padding:8px 12px;">
+        <div class="pause-label" style="color:var(--gold-light);">Total heures chantier</div>
+        <div id="total-chantier-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--white);">—</div>
+      </div>
+      <div style="background:var(--gray-light);border-radius:8px;padding:8px 10px;">
+        <div class="pause-label">Pause AM</div>
+        <div id="disp-pauseAM-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray-dark);">—</div>
+      </div>
+      <div style="background:var(--gray-light);border-radius:8px;padding:8px 10px;">
+        <div class="pause-label">Dîner</div>
+        <div id="disp-pauseDiner-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray-dark);">—</div>
+      </div>
+      <div style="background:var(--gray-light);border-radius:8px;padding:8px 10px;">
+        <div class="pause-label">Pause PM</div>
+        <div id="disp-pausePM-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gray-dark);">—</div>
+      </div>
+    </div>
+
+    <!-- Ligne 2 : Payable / Facturable (saisi) / Non-facturable (auto) -->
+    <div style="margin-top:8px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+      <div style="background:#EFF6FF;border-radius:8px;padding:8px 12px;">
+        <div class="pause-label" style="color:#1D4ED8;">Heures payables</div>
+        <div id="payable-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#1D4ED8;">—</div>
+        <div style="font-size:9px;color:#93C5FD;margin-top:2px;">Chantier − dîner</div>
+      </div>
+      <div style="background:#F0FDF4;border-radius:8px;padding:8px 12px;">
+        <div class="pause-label" style="color:var(--green);">Facturable (h)</div>
+        <input type="number" min="0" step="0.25" placeholder="0.00" id="fact-input-${id}"
+          onchange="calcEmp(${id})"
+          style="border:1.5px solid #86EFAC;border-radius:6px;padding:4px 6px;width:100%;font-size:15px;font-weight:700;color:var(--green);background:transparent;font-family:'Barlow Condensed',sans-serif;">
+        <div style="font-size:9px;color:#86EFAC;margin-top:2px;">Saisi par contremaître</div>
+      </div>
+      <div style="background:#FFF8EC;border-radius:8px;padding:8px 12px;">
+        <div class="pause-label" style="color:#92400E;">Non-facturable</div>
+        <div id="nonfact-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#92400E;">—</div>
+        <div style="font-size:9px;color:#D97706;margin-top:2px;">Chantier − pauses − fact.</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function calcEmp(id) {
+  const entry = document.getElementById('emp-' + id);
+  if (!entry) return;
+  const debut = entry.querySelector('[data-role="debut"]').value;
+  const fin   = entry.querySelector('[data-role="fin"]').value;
+  const pauseAM    = parseInt(entry.querySelector('[data-role="pauseAM"]').value)    || 0;
+  const pauseDiner = parseInt(entry.querySelector('[data-role="pauseDiner"]').value) || 0;
+  const pausePM    = parseInt(entry.querySelector('[data-role="pausePM"]').value)    || 0;
+  const totalPausesMin = pauseAM + pauseDiner + pausePM;
+
+  // Always update individual pause displays
+  document.getElementById('disp-pauseAM-'    + id).textContent = pauseAM    ? minToH(pauseAM)    : '—';
+  document.getElementById('disp-pauseDiner-' + id).textContent = pauseDiner ? minToH(pauseDiner) : '—';
+  document.getElementById('disp-pausePM-'    + id).textContent = pausePM    ? minToH(pausePM)    : '—';
+
+  if (debut && fin) {
+    const [dh, dm] = debut.split(':').map(Number);
+    const [fh, fm] = fin.split(':').map(Number);
+    const chantierMin = (fh * 60 + fm) - (dh * 60 + dm); // total brut
+
+    // Total chantier
+    document.getElementById('total-chantier-' + id).textContent = minToH(Math.max(0, chantierMin));
+
+    // Payable = chantier - pause dîner seulement
+    const payableMin = chantierMin - pauseDiner;
+    document.getElementById('payable-' + id).textContent = minToH(Math.max(0, payableMin));
+
+    // Non-facturable = chantier - toutes pauses - facturable saisi
+    const factSaisi = parseFloat(document.getElementById('fact-input-' + id)?.value) || 0;
+    const factMin   = factSaisi * 60;
+    const nonFactMin = chantierMin - totalPausesMin - factMin;
+    document.getElementById('nonfact-' + id).textContent = minToH(Math.max(0, nonFactMin));
+  } else {
+    document.getElementById('total-chantier-' + id).textContent = '—';
+    document.getElementById('payable-' + id).textContent = '—';
+    document.getElementById('nonfact-' + id).textContent = '—';
+  }
+  updateTotals();
+}
+
+function minToH(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${h}h${String(m).padStart(2,'0')}`;
+}
+
+function updateTotals() {
+  let totalChantier = 0, totalPayable = 0, totalFact = 0, totalNonFact = 0;
+  let totalPauseAM = 0, totalPauseDiner = 0, totalPausePM = 0;
+  let hasAny = false;
+
+  employees.forEach(id => {
+    const entry = document.getElementById('emp-' + id);
+    if (!entry) return;
+    const debut      = entry.querySelector('[data-role="debut"]').value;
+    const fin        = entry.querySelector('[data-role="fin"]').value;
+    const pauseAM    = parseInt(entry.querySelector('[data-role="pauseAM"]').value)    || 0;
+    const pauseDiner = parseInt(entry.querySelector('[data-role="pauseDiner"]').value) || 0;
+    const pausePM    = parseInt(entry.querySelector('[data-role="pausePM"]').value)    || 0;
+    const pauses     = pauseAM + pauseDiner + pausePM;
+    const factSaisi  = parseFloat(document.getElementById('fact-input-' + id)?.value) || 0;
+
+    totalPauseAM    += pauseAM;
+    totalPauseDiner += pauseDiner;
+    totalPausePM    += pausePM;
+
+    if (debut && fin) {
+      hasAny = true;
+      const [dh, dm] = debut.split(':').map(Number);
+      const [fh, fm] = fin.split(':').map(Number);
+      const chantier = (fh * 60 + fm) - (dh * 60 + dm);
+      const payable  = chantier - pauseDiner;
+      const nonFact  = chantier - pauses - factSaisi * 60;
+
+      totalChantier += chantier;
+      totalPayable  += Math.max(0, payable);
+      totalFact     += factSaisi * 60;
+      totalNonFact  += Math.max(0, nonFact);
+    }
+  });
+
+  document.getElementById('totalsBar').style.display = hasAny ? 'flex' : 'none';
+  document.getElementById('totalChantier').textContent   = minToH(totalChantier);
+  document.getElementById('totalPauseAM').textContent    = minToH(totalPauseAM);
+  document.getElementById('totalPauseDiner').textContent = minToH(totalPauseDiner);
+  document.getElementById('totalPausePM').textContent    = minToH(totalPausePM);
+  document.getElementById('totalPayable').textContent    = minToH(totalPayable);
+  document.getElementById('totalFact').textContent       = minToH(totalFact);
+  document.getElementById('totalNonFact').textContent    = minToH(Math.max(0, totalNonFact));
+
+  updateKPI(totalChantier, totalFact, Math.max(0, totalNonFact), totalPauseAM + totalPauseDiner + totalPausePM, hasAny);
+}
+
+function updateKPI(chantierMin, factMin, nonFactMin, pausesMin, hasData) {
+  const card = document.getElementById('kpiCard');
+  if (!hasData || chantierMin === 0) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const pct = Math.round((factMin / chantierMin) * 100);
+  const cible = 85;
+
+  // Gauge arc: total path length is ~173 (half-circle r=55)
+  const arcLen = 173;
+  const filled = Math.min(pct / 100, 1) * arcLen;
+  const gaugeFill = document.getElementById('gaugeFill');
+  gaugeFill.setAttribute('stroke-dasharray', `${filled} ${arcLen}`);
+
+  // Color by performance
+  let color, statusText, statusColor;
+  if (pct >= 95)      { color = '#15803D'; statusText = '🏆 Excellente performance'; statusColor = '#15803D'; }
+  else if (pct >= 85) { color = '#C9A84C'; statusText = '✅ Objectif atteint'; statusColor = '#C9A84C'; }
+  else if (pct >= 70) { color = '#D97706'; statusText = '⚠️ En dessous de la cible'; statusColor = '#D97706'; }
+  else                { color = '#B91C1C'; statusText = '🔴 Performance insuffisante'; statusColor = '#B91C1C'; }
+
+  gaugeFill.setAttribute('stroke', color);
+  document.getElementById('gaugePct').textContent = pct + '%';
+  document.getElementById('gaugePct').setAttribute('fill', color);
+  document.getElementById('kpiLabel').textContent = pct + '%';
+  document.getElementById('kpiLabel').style.color = color;
+  document.getElementById('kpiStatus').textContent = statusText;
+  document.getElementById('kpiStatus').style.color = statusColor;
+  document.getElementById('kpiFact').textContent = minToH(factMin);
+  document.getElementById('kpiChantier').textContent = minToH(chantierMin);
+  document.getElementById('kpiNonFact').textContent = minToH(nonFactMin);
+  document.getElementById('kpiPauses').textContent = minToH(pausesMin);
+
+  const ecart = pct - cible;
+  const ecartEl = document.getElementById('kpiEcart');
+  if (ecart >= 0) {
+    ecartEl.textContent = `+${ecart}% au-dessus de la cible`;
+    ecartEl.style.color = '#15803D';
+  } else {
+    ecartEl.textContent = `${ecart}% sous la cible (manque ${minToH(Math.round((cible/100 * chantierMin) - factMin))})`;
+    ecartEl.style.color = '#B91C1C';
+  }
+}
+
+// ─── MATÉRIAUX ────────────────────────────────────────────────────────────────
+function addMateriau() {
+  const id = ++matId;
+  materiaux.push(id);
+  const container = document.getElementById('materiauxContainer');
+  const div = document.createElement('div');
+  div.className = 'material-entry';
+  div.id = 'mat-' + id;
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--navy-mid);text-transform:uppercase;letter-spacing:1px;">Livraison #${id}</span>
+      <button class="btn-remove" onclick="removeMat(${id})">✕</button>
+    </div>
+    <div class="field">
+      <label>Description des matériaux</label>
+      <input type="text" placeholder="ex. Bois de charpente 2x6, isolation, etc.">
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Fournisseur</label>
+        <input type="text" placeholder="ex. BMR, Rona, Matériaux Blais...">
+      </div>
+      <div class="field">
+        <label>No. de facture / bon</label>
+        <input type="text" placeholder="ex. 2024-08521">
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Heure de livraison</label>
+        <input type="time">
+      </div>
+      <div class="field">
+        <label>Montant ($ avant taxes)</label>
+        <input type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeMat(id) {
+  document.getElementById('mat-' + id)?.remove();
+  materiaux = materiaux.filter(m => m !== id);
+}
+
+// ─── SOUS-TRAITANTS ───────────────────────────────────────────────────────────
+function addSousTraitant() {
+  const id = ++subId;
+  sousTraitants.push(id);
+  const container = document.getElementById('sousTraitantsContainer');
+  const div = document.createElement('div');
+  div.className = 'sub-entry';
+  div.id = 'sub-' + id;
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:#4B6FA0;text-transform:uppercase;letter-spacing:1px;">Sous-traitant #${id}</span>
+      <button class="btn-remove" onclick="removeSub(${id})">✕</button>
+    </div>
+    <div class="field">
+      <label>Compagnie / Nom</label>
+      <input type="text" placeholder="Nom de l'entreprise ou du travailleur autonome">
+    </div>
+    <div class="field">
+      <label>Type de travaux</label>
+      <input type="text" placeholder="ex. Électricité, Plomberie, Excavation...">
+    </div>
+    <div class="row-3">
+      <div class="field">
+        <label>Arrivée</label>
+        <input type="time" id="sub-debut-${id}" onchange="calcSub(${id})">
+      </div>
+      <div class="field">
+        <label>Départ</label>
+        <input type="time" id="sub-fin-${id}" onchange="calcSub(${id})">
+      </div>
+      <div class="field">
+        <label>Nb. employés</label>
+        <input type="number" min="1" value="1" id="sub-nb-${id}" onchange="calcSub(${id})">
+      </div>
+    </div>
+    <div class="pause-label" style="margin-top:4px;">Total heures travaillées</div>
+    <div id="sub-total-${id}" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--navy);">—</div>
+  `;
+  container.appendChild(div);
+}
+
+function calcSub(id) {
+  const debut = document.getElementById('sub-debut-' + id)?.value;
+  const fin = document.getElementById('sub-fin-' + id)?.value;
+  const nb = parseInt(document.getElementById('sub-nb-' + id)?.value) || 1;
+  if (debut && fin) {
+    const [dh, dm] = debut.split(':').map(Number);
+    const [fh, fm] = fin.split(':').map(Number);
+    const totalMin = ((fh * 60 + fm) - (dh * 60 + dm)) * nb;
+    document.getElementById('sub-total-' + id).textContent = minToH(totalMin > 0 ? totalMin : 0) + ` (${nb} pers.)`;
+  }
+}
+
+function removeSub(id) {
+  document.getElementById('sub-' + id)?.remove();
+  sousTraitants = sousTraitants.filter(s => s !== id);
+}
+
+// ─── CHANGEMENTS ──────────────────────────────────────────────────────────────
+function addChangement() {
+  const id = ++chgId;
+  changements.push(id);
+  const container = document.getElementById('changementsContainer');
+  const div = document.createElement('div');
+  div.className = 'change-entry';
+  div.id = 'chg-' + id;
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;">Avis de changement #${id}</span>
+      <button class="btn-remove" onclick="removeChg(${id})">✕</button>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>No. d'avis</label>
+        <input type="text" placeholder="ex. AC-2024-01">
+      </div>
+      <div class="field">
+        <label>Initié par</label>
+        <select>
+          <option value="">— Choisir —</option>
+          <option>Client</option>
+          <option>Architecte</option>
+          <option>Ingénieur</option>
+          <option>Contremaître</option>
+          <option>Autre</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Description du changement</label>
+      <textarea placeholder="Décrire en détail le changement demandé ou exécuté..." rows="3"></textarea>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Impact estimé ($)</label>
+        <input type="number" min="0" step="100" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>Statut</label>
+        <select>
+          <option value="En attente">⏳ En attente</option>
+          <option value="Approuvé">✅ Approuvé</option>
+          <option value="Refusé">❌ Refusé</option>
+          <option value="En discussion">💬 En discussion</option>
+        </select>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeChg(id) {
+  document.getElementById('chg-' + id)?.remove();
+  changements = changements.filter(c => c !== id);
+}
+
+// ─── COLLECTE DES DONNÉES ─────────────────────────────────────────────────────
+function collectData() {
+  const meteoChecked = document.querySelector('input[name="meteo"]:checked');
+  const data = {
+    projet: document.getElementById('nomProjet').value,
+    date: document.getElementById('dateRapport').value,
+    contremaitre: document.getElementById('contremaitre').value,
+    meteo: meteoChecked ? meteoChecked.value : '—',
+    temperature: document.getElementById('temperature').value,
+    compteRendu: document.getElementById('compteRendu').value,
+    enjeux: document.getElementById('enjeux').value,
+    employees: [],
+    materiaux: [],
+    sousTraitants: [],
+    changements: []
+  };
+
+  employees.forEach(id => {
+    const entry = document.getElementById('emp-' + id);
+    if (!entry) return;
+    const inputs = entry.querySelectorAll('input[type="text"]');
+    const nom = inputs[0]?.value || '—';
+    const debut = entry.querySelector('[data-role="debut"]').value;
+    const fin = entry.querySelector('[data-role="fin"]').value;
+    const pAM = entry.querySelector('[data-role="pauseAM"]').value;
+    const pDiner = entry.querySelector('[data-role="pauseDiner"]').value;
+    const pPM = entry.querySelector('[data-role="pausePM"]').value;
+    const factSaisi = parseFloat(document.getElementById('fact-input-' + id)?.value) || 0;
+    const nonfact = document.getElementById('nonfact-' + id)?.textContent || '—';
+    const fact = factSaisi ? minToH(factSaisi * 60) : '—';
+    const pauseAMdisp    = document.getElementById('disp-pauseAM-'    + id)?.textContent || '—';
+    const pauseDinerDisp = document.getElementById('disp-pauseDiner-' + id)?.textContent || '—';
+    const pausePMdisp    = document.getElementById('disp-pausePM-'    + id)?.textContent || '—';
+    const totalChantier = document.getElementById('total-chantier-' + id)?.textContent || '—';
+    const payable = document.getElementById('payable-' + id)?.textContent || '—';
+    data.employees.push({ nom, debut, fin, pAM, pDiner, pPM, fact, nonfact, pauseAMdisp, pauseDinerDisp, pausePMdisp, totalChantier, payable });
+  });
+
+  materiaux.forEach(id => {
+    const entry = document.getElementById('mat-' + id);
+    if (!entry) return;
+    const inputs = entry.querySelectorAll('input');
+    data.materiaux.push({
+      description: inputs[0]?.value || '—',
+      fournisseur: inputs[1]?.value || '—',
+      facture: inputs[2]?.value || '—',
+      heure: inputs[3]?.value || '—',
+      montant: inputs[4]?.value || '—'
+    });
+  });
+
+  sousTraitants.forEach(id => {
+    const entry = document.getElementById('sub-' + id);
+    if (!entry) return;
+    const inputs = entry.querySelectorAll('input[type="text"]');
+    data.sousTraitants.push({
+      compagnie: inputs[0]?.value || '—',
+      type: inputs[1]?.value || '—',
+      debut: document.getElementById('sub-debut-' + id)?.value || '—',
+      fin: document.getElementById('sub-fin-' + id)?.value || '—',
+      nb: document.getElementById('sub-nb-' + id)?.value || '1',
+      total: document.getElementById('sub-total-' + id)?.textContent || '—'
+    });
+  });
+
+  changements.forEach(id => {
+    const entry = document.getElementById('chg-' + id);
+    if (!entry) return;
+    const inputs = entry.querySelectorAll('input');
+    const selects = entry.querySelectorAll('select');
+    const textarea = entry.querySelector('textarea');
+    data.changements.push({
+      numero: inputs[0]?.value || '—',
+      initie: selects[0]?.value || '—',
+      description: textarea?.value || '—',
+      impact: inputs[1]?.value || '—',
+      statut: selects[1]?.value || '—'
+    });
+  });
+
+  return data;
+}
+
+// ─── GÉNÉRATION PDF ───────────────────────────────────────────────────────────
+function genererPDF() {
+  const data = collectData();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  
+  const navy = [13, 31, 60];
+  const gold = [201, 168, 76];
+  const grayLight = [244, 245, 247];
+  const grayDark = [107, 114, 128];
+  const white = [255, 255, 255];
+  const green = [21, 128, 61];
+
+  const pageW = 215.9;
+  const margin = 16;
+  const contentW = pageW - margin * 2;
+  let y = 0;
+
+  function addPage() {
+    doc.addPage();
+    y = 16;
+    // mini header on new pages
+    doc.setFillColor(...navy);
+    doc.rect(0, 0, pageW, 10, 'F');
+    doc.setTextColor(...white);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONSTRUCTION ROGER MERCIER — RAPPORT JOURNALIER', margin, 6.5);
+    doc.text(data.date || '', pageW - margin, 6.5, { align: 'right' });
+    y = 16;
+  }
+
+  function checkY(needed) {
+    if (y + needed > 270) addPage();
+  }
+
+  // ── HEADER ──
+  doc.setFillColor(...navy);
+  doc.rect(0, 0, pageW, 38, 'F');
+  
+  doc.setFillColor(...gold);
+  doc.rect(margin, 8, 22, 22, 'F');
+  doc.setTextColor(...navy);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RM', margin + 11, 21.5, { align: 'center' });
+
+  doc.setTextColor(...white);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Construction Roger Mercier Inc.', margin + 26, 16);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gold);
+  doc.text('RAPPORT JOURNALIER DE CHANTIER', margin + 26, 22);
+  
+  y = 46;
+
+  // ── INFOS GÉNÉRALES ──
+  doc.setFillColor(...navy);
+  doc.rect(margin, y, contentW, 7, 'F');
+  doc.setTextColor(...white);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('INFORMATIONS GÉNÉRALES', margin + 4, y + 4.8);
+  y += 10;
+
+  const infoRows = [
+    ['Projet', data.projet || '—', 'Date', data.date || '—'],
+    ['Contremaître', data.contremaitre || '—', 'Météo', `${data.meteo} ${data.temperature ? data.temperature + '°C' : ''}`]
+  ];
+
+  infoRows.forEach(row => {
+    doc.setFillColor(...grayLight);
+    doc.rect(margin, y, contentW / 2 - 2, 8, 'F');
+    doc.rect(margin + contentW / 2 + 2, y, contentW / 2 - 2, 8, 'F');
+    doc.setTextColor(...grayDark);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.text(row[0].toUpperCase(), margin + 3, y + 3);
+    doc.text(row[2].toUpperCase(), margin + contentW / 2 + 5, y + 3);
+    doc.setTextColor(...navy);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(row[1]), margin + 3, y + 7);
+    doc.text(String(row[3]), margin + contentW / 2 + 5, y + 7);
+    y += 11;
+  });
+
+  y += 4;
+
+  // ── EMPLOYÉS ──
+  if (data.employees.length > 0) {
+    checkY(20);
+    doc.setFillColor(...navy);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setTextColor(...white);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('⏱  TEMPS DES EMPLOYÉS', margin + 4, y + 4.8);
+    y += 10;
+
+    // Table headers
+    const cols = [40, 20, 20, 22, 22, 22, 22, 26];
+    const headers = ['Employé', 'Arrivée', 'Départ', 'Pauses', 'Chantier', 'Payable', 'Facturable', 'Non-fact.'];
+    let x = margin;
+    doc.setFillColor(...gold);
+    doc.rect(margin, y, contentW, 6, 'F');
+    doc.setTextColor(...navy);
+    doc.setFontSize(6.5);
+    doc.setFont('helvetica', 'bold');
+    headers.forEach((h, i) => {
+      doc.text(h, x + 2, y + 4.2);
+      x += cols[i];
+    });
+    y += 7;
+
+    data.employees.forEach((emp, idx) => {
+      checkY(9);
+      if (idx % 2 === 0) {
+        doc.setFillColor(...grayLight);
+        doc.rect(margin, y, contentW, 8, 'F');
+      }
+      x = margin;
+      doc.setTextColor(...navy);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      const vals = [
+        emp.nom,
+        emp.debut || '—',
+        emp.fin || '—',
+        emp.pauses,
+        emp.totalChantier,
+        emp.payable,
+        emp.fact,
+        emp.nonfact
+      ];
+      vals.forEach((v, i) => {
+        if (i === 6) { doc.setTextColor(...green); doc.setFont('helvetica', 'bold'); }
+        else if (i === 5) { doc.setTextColor(29, 78, 216); doc.setFont('helvetica', 'bold'); }
+        else { doc.setTextColor(...navy); doc.setFont('helvetica', 'normal'); }
+        doc.text(String(v), x + 2, y + 5.5);
+        x += cols[i];
+      });
+      y += 9;
+    });
+    y += 5;
+  }
+
+  // ── MATÉRIAUX ──
+  if (data.materiaux.length > 0) {
+    checkY(20);
+    doc.setFillColor(...navy);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setTextColor(...white);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('🧱  MATÉRIAUX LIVRÉS', margin + 4, y + 4.8);
+    y += 10;
+
+    data.materiaux.forEach((mat, idx) => {
+      checkY(14);
+      if (idx % 2 === 0) { doc.setFillColor(...grayLight); doc.rect(margin, y, contentW, 14, 'F'); }
+      doc.setTextColor(...grayDark); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text('DESCRIPTION', margin + 3, y + 3.5);
+      doc.text('FOURNISSEUR', margin + 75, y + 3.5);
+      doc.text('FACTURE', margin + 120, y + 3.5);
+      doc.text('HEURE', margin + 155, y + 3.5);
+      doc.text('MONTANT', margin + 175, y + 3.5);
+      doc.setTextColor(...navy); doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+      doc.text(mat.description, margin + 3, y + 9.5);
+      doc.text(mat.fournisseur, margin + 75, y + 9.5);
+      doc.text(mat.facture, margin + 120, y + 9.5);
+      doc.text(mat.heure, margin + 155, y + 9.5);
+      doc.text(mat.montant ? `${mat.montant}$` : '—', margin + 175, y + 9.5);
+      y += 15;
+    });
+    y += 4;
+  }
+
+  // ── SOUS-TRAITANTS ──
+  if (data.sousTraitants.length > 0) {
+    checkY(20);
+    doc.setFillColor(...navy);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setTextColor(...white);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('🤝  SOUS-TRAITANTS', margin + 4, y + 4.8);
+    y += 10;
+
+    data.sousTraitants.forEach((sub, idx) => {
+      checkY(14);
+      if (idx % 2 === 0) { doc.setFillColor(...grayLight); doc.rect(margin, y, contentW, 14, 'F'); }
+      doc.setTextColor(...grayDark); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text('COMPAGNIE', margin + 3, y + 3.5);
+      doc.text('TYPE DE TRAVAUX', margin + 65, y + 3.5);
+      doc.text('ARRIVÉE', margin + 120, y + 3.5);
+      doc.text('DÉPART', margin + 145, y + 3.5);
+      doc.text('NB', margin + 163, y + 3.5);
+      doc.text('TOTAL H.', margin + 175, y + 3.5);
+      doc.setTextColor(...navy); doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+      doc.text(sub.compagnie, margin + 3, y + 9.5);
+      doc.text(sub.type, margin + 65, y + 9.5);
+      doc.text(sub.debut, margin + 120, y + 9.5);
+      doc.text(sub.fin, margin + 145, y + 9.5);
+      doc.text(sub.nb, margin + 163, y + 9.5);
+      doc.text(sub.total, margin + 175, y + 9.5);
+      y += 15;
+    });
+    y += 4;
+  }
+
+  // ── COMPTE RENDU ──
+  checkY(25);
+  doc.setFillColor(...navy);
+  doc.rect(margin, y, contentW, 7, 'F');
+  doc.setTextColor(...white);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('📝  COMPTE RENDU DE LA JOURNÉE', margin + 4, y + 4.8);
+  y += 10;
+
+  if (data.compteRendu) {
+    const lines = doc.splitTextToSize(data.compteRendu, contentW - 6);
+    checkY(lines.length * 4.5 + 6);
+    doc.setFillColor(...grayLight);
+    doc.rect(margin, y, contentW, lines.length * 4.5 + 6, 'F');
+    doc.setTextColor(...navy); doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+    doc.text(lines, margin + 3, y + 5);
+    y += lines.length * 4.5 + 9;
+  }
+
+  if (data.enjeux) {
+    checkY(20);
+    doc.setTextColor(...grayDark); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.text('ENJEUX & PROBLÈMES :', margin, y + 4);
+    y += 7;
+    const lines2 = doc.splitTextToSize(data.enjeux, contentW - 6);
+    doc.setFillColor(254, 226, 226);
+    doc.rect(margin, y, contentW, lines2.length * 4.5 + 6, 'F');
+    doc.setTextColor(185, 28, 28); doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+    doc.text(lines2, margin + 3, y + 5);
+    y += lines2.length * 4.5 + 9;
+  }
+
+  // ── CHANGEMENTS ──
+  if (data.changements.length > 0) {
+    checkY(25);
+    doc.setFillColor(...gold);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setTextColor(...navy);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('🔄  AVIS DE CHANGEMENT', margin + 4, y + 4.8);
+    y += 10;
+
+    data.changements.forEach((chg, idx) => {
+      checkY(30);
+      doc.setFillColor(255, 248, 236);
+      const descLines = doc.splitTextToSize(chg.description || '—', contentW - 6);
+      const blockH = descLines.length * 4.5 + 20;
+      doc.rect(margin, y, contentW, blockH, 'F');
+      doc.setDrawColor(...gold);
+      doc.setLineWidth(1);
+      doc.line(margin, y, margin, y + blockH);
+
+      doc.setTextColor(...grayDark); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text('NO. AVIS', margin + 3, y + 4);
+      doc.text('INITIÉ PAR', margin + 40, y + 4);
+      doc.text('STATUT', margin + 100, y + 4);
+      doc.text('IMPACT ($)', margin + 155, y + 4);
+      doc.setTextColor(...navy); doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+      doc.text(chg.numero, margin + 3, y + 9);
+      doc.text(chg.initie, margin + 40, y + 9);
+      doc.text(chg.statut, margin + 100, y + 9);
+      doc.text(chg.impact ? chg.impact + '$' : '—', margin + 155, y + 9);
+      doc.setTextColor(...grayDark); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text('DESCRIPTION :', margin + 3, y + 14);
+      doc.setTextColor(...navy); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.text(descLines, margin + 3, y + 19);
+      y += blockH + 5;
+    });
+  }
+
+  // ── FOOTER ──
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFillColor(...navy);
+    doc.rect(0, 274, pageW, 15, 'F');
+    doc.setTextColor(...gold);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Construction Roger Mercier Inc.', margin, 280.5);
+    doc.setTextColor(180, 180, 200);
+    doc.setFont('helvetica', 'normal');
+    doc.text('info@constructionrm.ca', pageW / 2, 280.5, { align: 'center' });
+    doc.text(`Page ${i} / ${totalPages}`, pageW - margin, 280.5, { align: 'right' });
+  }
+
+  const filename = `rapport-chantier-${data.date || 'sans-date'}.pdf`;
+  doc.save(filename);
+  return { doc, filename, data };
+}
+
+// ─── EMAILJS CONFIG ───────────────────────────────────────────────────────────
+const EMAILJS_SERVICE_ID  = 'service_ehb7zxt';
+const EMAILJS_TEMPLATE_ID = 'template_k8d9uv6';
+const EMAILJS_PUBLIC_KEY  = 'LEqzBFaMHSa7pKrQG';
+
+// ─── SOUMISSION ───────────────────────────────────────────────────────────────
+async function soumettrerapport() {
+  const projet = document.getElementById('nomProjet').value.trim();
+  const date   = document.getElementById('dateRapport').value;
+  const contre = document.getElementById('contremaitre').value.trim();
+
+  if (!projet || !date || !contre) {
+    showStatus('Veuillez remplir les champs obligatoires : Nom du projet, Date et Contremaître.', 'error');
+    return;
+  }
+
+  const btn     = document.getElementById('btnSoumettre');
+  const spinner = document.getElementById('spinner');
+  btn.disabled  = true;
+  spinner.style.display = 'block';
+  btn.querySelector('span').textContent = 'Génération du PDF...';
+
+  const data = collectData();
+
+  // ── Texte structuré du rapport ──
+  const empText = data.employees.map(e =>
+    `  • ${e.nom} : ${e.debut || '—'} à ${e.fin || '—'} | Chantier: ${e.totalChantier} | Payable: ${e.payable} | Facturable: ${e.fact} | Non-fact.: ${e.nonfact}`
+  ).join('\n');
+
+  const matText = data.materiaux.map(m =>
+    `  • ${m.description} | Fournisseur: ${m.fournisseur} | Facture: ${m.facture} | ${m.heure} | ${m.montant ? m.montant + '$' : '—'}`
+  ).join('\n');
+
+  const subText = data.sousTraitants.map(s =>
+    `  • ${s.compagnie} (${s.type}) : ${s.debut} à ${s.fin} | ${s.nb} pers. | Total: ${s.total}`
+  ).join('\n');
+
+  const chgText = data.changements.map(c =>
+    `  • [${c.numero}] ${c.description} | Initié: ${c.initie} | Statut: ${c.statut} | Impact: ${c.impact ? c.impact + '$' : '—'}`
+  ).join('\n');
+
+  // KPI conformité
+  const kpiEl  = document.getElementById('kpiLabel');
+  const kpiPct = kpiEl ? kpiEl.textContent : '—';
+
+  const rapport = `
+═══════════════════════════════════════════
+ RAPPORT JOURNALIER DE CHANTIER
+ Construction Roger Mercier Inc.
+═══════════════════════════════════════════
+ Projet      : ${data.projet}
+ Date        : ${data.date}
+ Contremaître: ${data.contremaitre}
+ Météo       : ${data.meteo}${data.temperature ? ' | ' + data.temperature + '°C' : ''}
+ Conformité  : ${kpiPct}
+═══════════════════════════════════════════
+
+── EMPLOYÉS ──
+${empText || '(aucun)'}
+
+── MATÉRIAUX LIVRÉS ──
+${matText || '(aucun)'}
+
+── SOUS-TRAITANTS ──
+${subText || '(aucun)'}
+
+── COMPTE RENDU ──
+${data.compteRendu || '(aucun)'}
+
+── ENJEUX & PROBLÈMES ──
+${data.enjeux || '(aucun)'}
+
+── AVIS DE CHANGEMENT ──
+${chgText || '(aucun)'}
+`.trim();
+
+  btn.querySelector('span').textContent = 'Envoi en cours...';
+
+  try {
+    // Initialiser EmailJS
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      projet:       data.projet,
+      date:         data.date,
+      contremaitre: data.contremaitre,
+      meteo:        `${data.meteo}${data.temperature ? ' | ' + data.temperature + '°C' : ''}`,
+      rapport:      rapport,
+      name:         contre,
+      message:      rapport,
+      email:        'info@constructionrm.ca'
+    });
+
+    // Télécharger le PDF localement en même temps
+    genererPDF();
+
+    showStatus('✅ Rapport envoyé à info@constructionrm.ca avec succès ! Le PDF a aussi été téléchargé.', 'success');
+    btn.querySelector('span').textContent = '✓ Rapport soumis';
+
+  } catch (err) {
+    console.error('EmailJS error:', err);
+    // Fallback : télécharger le PDF quand même
+    genererPDF();
+    showStatus(`⚠️ Erreur d'envoi (${err?.text || err}). Le PDF a été téléchargé — veuillez l'envoyer manuellement à info@constructionrm.ca`, 'error');
+    btn.querySelector('span').textContent = '📤 Soumettre le rapport';
+    btn.disabled = false;
+  }
+
+  spinner.style.display = 'none';
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = type;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>
